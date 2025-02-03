@@ -35,12 +35,18 @@ function register() {
 function login() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
-    auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-            document.getElementById("auth-section").style.display = "none";
-            document.getElementById("tracker-section").style.display = "block";
-        })
-        .catch(error => alert(error.message));
+
+    firebase.auth().signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+        document.getElementById("auth-section").style.display = "none";
+        document.getElementById("tracker-section").style.display = "block";
+
+        loadExpenses(); // Start real-time sync
+        loadCategories(); // Start real-time sync
+    })
+    .catch((error) => {
+        alert(error.message);
+    });
 }
 
 function logout() {
@@ -94,20 +100,25 @@ function addCategory() {
 }
 
 function loadCategories() {
-    db.collection("categories").doc(auth.currentUser.uid).get().then(doc => {
-        if (doc.exists) {
-            const categories = doc.data();
-            const select = document.getElementById("category-select");
-            select.innerHTML = "";
-            Object.keys(categories).forEach(cat => {
-                const option = document.createElement("option");
-                option.value = cat;
-                option.textContent = cat;
-                select.appendChild(option);
-            });
-        }
-    });
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+
+    db.collection("categories")
+      .where("userId", "==", user.uid)
+      .onSnapshot((snapshot) => {
+          const categorySelect = document.getElementById("category-select");
+          categorySelect.innerHTML = "";
+
+          snapshot.forEach((doc) => {
+              const data = doc.data();
+              const option = document.createElement("option");
+              option.value = data.name;
+              option.textContent = `${data.name} (Budget: $${data.budget})`;
+              categorySelect.appendChild(option);
+          });
+      });
 }
+
 
 function addExpense() {
     const user = firebase.auth().currentUser;
@@ -140,23 +151,35 @@ function addExpense() {
 
 // Function to load expenses into dashboard
 function loadExpenses() {
-    db.collection("expenses").where("userId", "==", auth.currentUser.uid).orderBy("timestamp", "desc").onSnapshot(snapshot => {
-        const table = document.getElementById("expenseTable");
-        table.innerHTML = "<tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th></tr>";
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            const row = table.insertRow();
-            row.insertCell(0).textContent = data.date;
-            row.insertCell(1).textContent = data.category;
-            row.insertCell(2).textContent = data.description;
-            row.insertCell(3).textContent = data.amount;
-        });
-    });
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+
+    db.collection("expenses")
+      .where("userId", "==", user.uid)
+      .orderBy("date", "desc")
+      .onSnapshot((snapshot) => {
+          const expenseTable = document.getElementById("expenseTable");
+          expenseTable.innerHTML = `
+              <tr>
+                  <th>Date</th>
+                  <th>Category</th>
+                  <th>Description</th>
+                  <th>Amount</th>
+              </tr>
+          `;
+
+          snapshot.forEach((doc) => {
+              const data = doc.data();
+              const row = `
+                  <tr>
+                      <td>${new Date(data.date.seconds * 1000).toLocaleDateString()}</td>
+                      <td>${data.category}</td>
+                      <td>${data.description}</td>
+                      <td>$${data.amount.toFixed(2)}</td>
+                  </tr>
+              `;
+              expenseTable.innerHTML += row;
+          });
+      });
 }
 
-auth.onAuthStateChanged(user => {
-    if (user) {
-        loadCategories();
-        loadExpenses();
-    }
-});
