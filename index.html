@@ -4,53 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Tracker</title>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .container { width: 100%; max-width: 800px; margin: auto; }
+        iframe { width: 100%; height: 500px; border: none; }
+        .nav { margin: 20px 0; }
+        button { padding: 10px; margin: 5px; cursor: pointer; }
+    </style>
 </head>
 <body>
-    <div id="auth-section">
-        <h2>Login / Signup</h2>
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="register()">Sign Up</button>
-        <button onclick="login()">Login</button>
-        <button onclick="logout()">Logout</button>
+    <h1>Expense Tracker</h1>
+    <div class="nav">
+        <button onclick="showSection('looker')">Dashboard</button>
+        <button onclick="showSection('form1')">Add Expense 1</button>
+        <button onclick="showSection('form2')">Add Expense 2</button>
+        <button onclick="showSection('form3')">Add Expense 3</button>
+        <button onclick="showSection('sheet1')">View Data 1</button>
+        <button onclick="showSection('sheet2')">View Data 2</button>
+        <button onclick="showSection('sheet3')">View Data 3</button>
     </div>
-
-    <div id="tracker-section" style="display:none;">
-        <h2>Money Tracking</h2>
-        <label>Income:</label>
-        <input type="number" id="income" placeholder="Enter Income">
-        <button onclick="saveIncome()">Save Income</button>
-
-        <label>Category:</label>
-        <input type="text" id="category" placeholder="Enter Category">
-        <button onclick="addCategory()">Add Category</button>
-
-        <label>Expense:</label>
-        <input type="date" id="date">
-        <select id="category-select"></select>
-        <input type="number" id="amount" placeholder="Amount">
-        <input type="text" id="description" placeholder="Description">
-        <button onclick="addExpense()">Add Expense</button>
-
-        <h3>Dashboard</h3>
-        <div class="dashboard-section">
-            <canvas id="expenseChart"></canvas>
-            <table id="expenseTable">
-                <tr>
-                    <th>Date</th>
-                    <th>Category</th>
-                    <th>Description</th>
-                    <th>Amount</th>
-                </tr>
-            </table>
+    
+    <div class="container">
+        <!-- Looker Studio Embed -->
+        <div id="looker" class="section">
+            <iframe src="https://lookerstudio.google.com/embed/reporting/2184e185-f2eb-4644-a180-56b9943821fa/page/JCyaE"></iframe>
+        </div>
+        
+        <!-- Google Form Embeds -->
+        <div id="form1" class="section" style="display: none;">
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSf2H88F5HPJW3spoiDfoy2hbfFs9LNQwmX5XN6p8qNFF1oh-Q/viewform?embedded=true" width="640" height="1127" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+        </div>
+        <div id="form2" class="section" style="display: none;">
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfPuzNXrZ1An4814eT-JzF1_VQSV-Dfl1SHXrxvj8hBPOTy-g/viewform?embedded=true" width="640" height="923" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+        </div>
+        <div id="form3" class="section" style="display: none;">
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe0nvWMIn4kGF4VcotgSORu7zRPHxhlkyz2IOPsOpY6P3RLww/viewform?embedded=true" width="640" height="586" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+        </div>
+        
+        <!-- Google Sheet Embeds -->
+        <div id="sheet1" class="section" style="display: none;">
+            <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vS9yYOrj05AXQ9vhqRYeKGFeRMyMz81p31u8dSKFu7UgGvCFXACYw35XJ-cSSSFKcRjXjBQ_akonEVR/pubhtml?widget=true&amp;headers=false"></iframe>
+        </div>
+        <div id="sheet2" class="section" style="display: none;">
+            <iframe src="YOUR_GOOGLE_SHEET_2_EMBED_URL"></iframe>
+        </div>
+        <div id="sheet3" class="section" style="display: none;">
+            <iframe src="YOUR_GOOGLE_SHEET_3_EMBED_URL"></iframe>
         </div>
     </div>
-
-    <script src="app.js"></script>
+    
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+        }
+    </script>
 </body>
 </html>
